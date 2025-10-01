@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedStudy - Aplicativo de Estudos Médicos</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmation-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="modal-title">Confirmação</h3>
+            <p id="modal-message">Tem certeza?</p>
+            <div class="modal-actions">
+                <button class="btn btn--outline" id="modal-cancel">Cancelar</button>
+                <button class="btn btn--primary" id="modal-confirm">Confirmar</button>
+            </div>
+        </div>
+        <div class="modal-backdrop"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Navigation -->
+        <nav class="nav-container">
+            <div class="nav-brand">
+                <h2>MedStudy</h2>
+            </div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="dashboard" id="nav-dashboard">Dashboard</button>
+                <button class="nav-tab" data-tab="cadastro" id="nav-cadastro">Cadastro</button>
+                <button class="nav-tab" data-tab="revisoes" id="nav-revisoes">Revisões</button>
+                <button class="nav-tab" data-tab="historico" id="nav-historico">Histórico</button>
+                <button class="nav-tab" data-tab="configuracoes" id="nav-configuracoes">Configurações</button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content active">
+                <div class="dashboard-header">
+                    <h1>Dashboard de Estudos</h1>
+                    <p class="dashboard-subtitle">Acompanhe seu progresso e estatísticas</p>
+                </div>
+
+                <!-- Meta Diária -->
+                <div class="daily-goal-section">
+                    <div class="goal-card">
+                        <h3>Meta Diária</h3>
+                        <div class="goal-progress">
+                            <div class="goal-text">
+                                <span id="daily-progress">0</span> / <span id="daily-target">0</span> estudos
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <div class="progress-percentage" id="progress-percentage">0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-studies">0</div>
+                            <div class="stat-label">Total de Estudos</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔄</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="overdue-reviews-stat">0</div>
+                            <div class="stat-label">Revisões Atrasadas</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="today-reviews-stat">0</div>
+                            <div class="stat-label">Revisões Hoje</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="avg-performance">0%</div>
+                            <div class="stat-label">Performance Média</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-time">0h</div>
+                            <div class="stat-label">Tempo Total</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="avg-time">0min</div>
+                            <div class="stat-label">Tempo Médio</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sequência Cards -->
+                <div class="streak-cards">
+                    <div class="streak-card">
+                        <div class="streak-icon">🔥</div>
+                        <div class="streak-content">
+                            <div class="streak-number" id="current-streak">0</div>
+                            <div class="streak-label">Sequência Atual</div>
+                        </div>
+                    </div>
+                    <div class="streak-card">
+                        <div class="streak-icon">🏆</div>
+                        <div class="streak-content">
+                            <div class="streak-number" id="best-streak">0</div>
+                            <div class="streak-label">Melhor Sequência</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-charts">
+                    <div class="chart-container">
+                        <h3>Distribuição por Disciplina</h3>
+                        <div class="chart-wrapper" style="position: relative; height: 300px;">
+                            <canvas id="disciplines-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Performance ao Longo do Tempo</h3>
+                        <div class="chart-wrapper" style="position: relative; height: 300px;">
+                            <canvas id="performance-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container full-width">
+                        <h3>Atividade dos Últimos 30 Dias</h3>
+                        <div class="heatmap-wrapper">
+                            <div id="activity-heatmap"></div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Sequência de Estudos</h3>
+                        <div class="chart-wrapper" style="position: relative; height: 300px;">
+                            <canvas id="streak-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cadastro Tab -->
+            <div id="cadastro-tab" class="tab-content">
+                <div class="form-header">
+                    <h1>Cadastrar Novo Estudo</h1>
+                    <p>Registre sua sessão de estudos</p>
+                </div>
+
+                <form id="study-form" class="study-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="discipline">Disciplina *</label>
+                            <select class="form-control" id="discipline" required>
+                                <option value="">Selecione uma disciplina</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="topic">Tópico *</label>
+                            <select class="form-control" id="topic" required disabled>
+                                <option value="">Selecione primeiro uma disciplina</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="custom-topic-group" style="display: none;">
+                        <label class="form-label" for="custom-topic">Novo Tópico</label>
+                        <input type="text" class="form-control" id="custom-topic" placeholder="Digite o nome do novo tópico">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="correct-answers">Questões Corretas *</label>
+                            <input type="number" class="form-control" id="correct-answers" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="total-questions">Total de Questões *</label>
+                            <input type="number" class="form-control" id="total-questions" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="study-date">Data do Estudo</label>
+                        <input type="date" class="form-control" id="study-date">
+                    </div>
+
+                    <div class="timer-section">
+                        <div class="timer-header">
+                            <label class="form-label">Tempo de Estudo</label>
+                            <button type="button" class="btn btn--secondary" id="toggle-timer">Usar Timer</button>
+                        </div>
+                        <div class="timer-display" id="timer-display" style="display: none;">
+                            <div class="timer-clock">
+                                <span id="timer-minutes">00</span>:<span id="timer-seconds">00</span>
+                            </div>
+                            <div class="timer-controls">
+                                <button type="button" class="btn btn--primary" id="start-timer">Iniciar</button>
+                                <button type="button" class="btn btn--secondary" id="pause-timer">Pausar</button>
+                                <button type="button" class="btn btn--outline" id="reset-timer">Resetar</button>
+                            </div>
+                        </div>
+                        <input type="number" class="form-control" id="study-time" placeholder="Tempo em minutos (opcional)">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="observations">Observações</label>
+                        <textarea class="form-control" id="observations" rows="3" placeholder="Notas sobre o estudo..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn--primary btn--full-width">Cadastrar Estudo</button>
+                </form>
+            </div>
+
+            <!-- Revisões Tab -->
+            <div id="revisoes-tab" class="tab-content">
+                <div class="reviews-header">
+                    <h1>Revisões Programadas</h1>
+                    <p>Sistema baseado no algoritmo de repetição espaçada SM-2</p>
+                </div>
+
+                <div class="reviews-sections">
+                    <div class="review-section">
+                        <h3 class="section-title overdue">Atrasadas (<span id="overdue-count">0</span>)</h3>
+                        <div id="overdue-reviews" class="reviews-list"></div>
+                    </div>
+
+                    <div class="review-section">
+                        <h3 class="section-title today">Hoje (<span id="today-count">0</span>)</h3>
+                        <div id="today-reviews" class="reviews-list"></div>
+                    </div>
+
+                    <div class="review-section">
+                        <h3 class="section-title upcoming">Próximas (<span id="upcoming-count">0</span>)</h3>
+                        <div id="upcoming-reviews" class="reviews-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Histórico Tab -->
+            <div id="historico-tab" class="tab-content">
+                <div class="history-header">
+                    <h1>Histórico de Estudos</h1>
+                    <div class="history-filters">
+                        <input type="text" class="form-control" id="filter-search" placeholder="Buscar por tópico...">
+                        <select class="form-control filter-select" id="filter-discipline">
+                            <option value="">Todas as disciplinas</option>
+                        </select>
+                        <input type="date" class="form-control" id="filter-date-from" placeholder="Data inicial">
+                        <input type="date" class="form-control" id="filter-date-to" placeholder="Data final">
+                        <select class="form-control filter-select" id="filter-performance">
+                            <option value="">Todas as performances</option>
+                            <option value="excellent">Excelente (≥90%)</option>
+                            <option value="good">Bom (80-89%)</option>
+                            <option value="average">Médio (70-79%)</option>
+                            <option value="poor">Baixo (<70%)</option>
+                        </select>
+                        <button class="btn btn--secondary" id="clear-filters">Limpar Filtros</button>
+                    </div>
+                </div>
+
+                <div class="history-stats">
+                    <div class="history-summary">
+                        <span>Total: <strong id="history-total">0</strong> estudos</span>
+                        <span>Média: <strong id="history-average">0%</strong></span>
+                    </div>
+                </div>
+
+                <div id="history-list" class="history-list"></div>
+            </div>
+
+            <!-- Configurações Tab -->
+            <div id="configuracoes-tab" class="tab-content">
+                <div class="settings-header">
+                    <h1>Configurações</h1>
+                    <p>Gerencie disciplinas, metas e dados</p>
+                </div>
+
+                <div class="settings-sections">
+                    <div class="settings-section">
+                        <h3>Disciplinas Customizadas</h3>
+                        <div class="discipline-form">
+                            <div class="form-row">
+                                <input type="text" class="form-control" id="new-discipline-name" placeholder="Nome da disciplina">
+                                <button class="btn btn--primary" id="add-discipline">Adicionar</button>
+                            </div>
+                        </div>
+                        <div id="custom-disciplines-list" class="disciplines-list"></div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Backup e Importação</h3>
+                        <div class="backup-controls">
+                            <button class="btn btn--secondary" id="download-json">Download JSON</button>
+                            <button class="btn btn--outline" id="copy-data">Copiar Dados</button>
+                            <button class="btn btn--outline" id="view-data">Ver Dados</button>
+                            <input type="file" id="import-file" accept=".json" style="display: none;">
+                            <button class="btn btn--outline" id="import-data">Importar Dados</button>
+                            <button class="btn btn--outline" id="clear-all-data">Limpar Todos os Dados</button>
+                        </div>
+                        <div id="data-viewer" class="data-viewer hidden">
+                            <h4>Dados do Sistema</h4>
+                            <textarea id="data-textarea" class="form-control" readonly rows="10"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Meta Diária</h3>
+                        <div class="goal-form">
+                            <div class="form-row">
+                                <input type="number" class="form-control" id="daily-goal" min="1" placeholder="Número de estudos por dia">
+                                <button class="btn btn--primary" id="set-goal">Definir Meta</button>
+                            </div>
+                            <div class="current-goal">
+                                Meta atual: <strong id="current-goal">Não definida</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
